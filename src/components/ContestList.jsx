@@ -1,9 +1,20 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useContests } from '../context/ContestsContext';
+import { useNotifications } from '../context/NotificationContext';
 import ContestCard from './ContestCard';
 
 function ContestList() {
   const { contests, loading, error, filter } = useContests();
+  const { scheduleNotification } = useNotifications();
+
+  useEffect(() => {
+    // Schedule notifications for all upcoming contests
+    contests.forEach(contest => {
+      if (new Date(contest.startTime) > new Date()) {
+        scheduleNotification(contest);
+      }
+    });
+  }, [contests, scheduleNotification]);
 
   const filteredContests = contests.filter(
     (contest) => filter === 'all' || contest.platform === filter
